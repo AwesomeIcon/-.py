@@ -54,13 +54,13 @@ class MM:
 			f.close()
 	def mkdir(self,path,name):
 		path = path.strip()
-		isExist = os.path.exist(path)
+		isExist = os.path.exists(path)
 		if not isExist:
 			print u'正在创建名为',name,u'的文件夹'
 			os.makedirs(path)	
-			return true
+			return True
 		else:
 			print u'名为',name,u'的文件夹已存在'
-			return false
+			return False
 mm = MM()
 mm.getInfo()
