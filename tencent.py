@@ -2,6 +2,7 @@
 import os
 import time
 import cookielib
+import threading
 import re
 import urllib2
 import sys
@@ -76,21 +77,26 @@ class Comic:
         i = len(imgs)
         pattern = re.compile('》(.*?)-'.decode('utf8'),re.S)
         comic_title = re.search(pattern,driver.title).group(1)
+        lock = threading.Lock()
         for img in imgs:
             img_url = img.get_attribute("src")
             if img_url is None:
                 img_url = img.get_attribute("data-src")
-            self.saveFile(img_url,comic_title,i)
-            print img_url
+            t = threading.Thread(target=self.saveFile,args=(img_url,comic_title,i,lock))
+            t.start()
             i -= 1;
         driver.close()
 
-    def saveFile(self,url,name,i):
+    def saveFile(self,url,name,i,lock):
         isExist = os.path.exists('/home/huangjunqin/Documents/' + name)
         if not isExist:
-            print '\033[1;32m'
-            print '+ mkdir ', '\033[0m' ,name ,u' 共' ,i ,'P'
-            os.makedirs('/home/huangjunqin/Documents/' + name)
+            lock.acquire()
+            if not isExist:
+                print '\033[1;32m'
+                print '+ mkdir ', '\033[0m' ,name ,u' 共' ,i ,'P'
+                os.makedirs('/home/huangjunqin/Documents/' + name)
+            lock.release()
+        print '\033[1;32m','+ Saving','\033[0m', url
         img_url = open('/home/huangjunqin/Documents/' + name + '/' + str(i) + ".jpg",'w+')
         request = urllib2.Request(url,headers=random.choice(self.headers))
         data = urllib2.urlopen(request).read()
