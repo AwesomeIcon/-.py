@@ -17,6 +17,12 @@ from selenium.webdriver.common.action_chains import ActionChains
 reload(sys)
 sys.setdefaultencoding('utf8')
 
+print '\033[1;34m*************************************************************************'
+print ' > Author: huangjunqin'
+print ' > Mail: uestc_ccse@outlook.com'
+print ' > Version: 0.1.0'
+print '*************************************************************************\033[0m\n'
+
 class Comic:
     def __init__(self,url):
         self.url = url
