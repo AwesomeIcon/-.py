@@ -2,6 +2,7 @@
 import filecmp
 import re
 import urllib
+import getpass
 import urllib2
 import cookielib
 import smtplib
@@ -19,6 +20,7 @@ class grade:
         self.cookieJar = cookielib.CookieJar()
         self.host = "smtp.ym.163.com"
         self.sender = "uestc_ccse@fuestck.ml"
+        self.path = '/home/huangjunqin/Desktop/'
         self.receiver = receiver
         self.sender_passwd = sender_passwd
         self.username = username
@@ -38,7 +40,7 @@ class grade:
                                         '_eventId':	'submit',
                                         'rmShown': '1'
                                            })
-        self.second_url = "http://eams.uestc.edu.cn/eams/teach/grade/course/person!search.action?semesterId=103&projectType="
+        self.second_url = "http://eams.uestc.edu.cn/eams/teach/grade/course/person!search.action?semesterId=123&projectType="
 
     def spider(self):
         request = urllib2.Request(self.first_url, data=self.post_data)
@@ -61,15 +63,15 @@ class grade:
             tr = re.findall(tr_pattern, str(tbody.group(1)))
         except Exception:
             return 1
-        if os.path.exists('./usr/' + self.username):
-            fp = open('./usr/' + self.username, 'r')
-            fp_old = open('./usr/' + self.username + '.old', 'w')
+        if os.path.exists(self.path + self.username):
+            fp = open(self.path + self.username, 'r')
+            fp_old = open(self.path + self.username + '.old', 'w')
             fp_old.write(fp.read())
             fp.close()
             fp_old.close()
-            fp = open('./usr/' + self.username, 'w+')
+            fp = open(self.path + self.username, 'w+')
         else:
-            fp = open('./usr/' + self.username, 'w+')
+            fp = open(self.path + self.username, 'w+')
         for per_tr in tr:
             td_pattern = re.compile('<td.*?>(.*?)</td>', re.S)
             td = re.findall(td_pattern, per_tr)
@@ -79,10 +81,10 @@ class grade:
             fp.write(course + '\n')
         fp.close()
         lines = []
-        if os.path.exists('./usr/' + self.username + '.old'):
-            fp = open('./usr/' + self.username, 'r')
-            fp_old = open('./usr/' + self.username + '.old', 'r')
-            if filecmp.cmp('./usr/' + self.username, './usr/' + self.username + '.old') is not True:
+        if os.path.exists(self.path + self.username + '.old'):
+            fp = open(self.path + self.username, 'r')
+            fp_old = open(self.path + self.username + '.old', 'r')
+            if filecmp.cmp(self.path + self.username, self.path + self.username + '.old') is not True:
                 count_old = len(fp_old.readlines())
                 count = len(fp.readlines())
                 fp.seek(0)
@@ -98,7 +100,7 @@ class grade:
                         if flag is True:
                             lines.append(new_line)
         else:
-            fp = open('./usr/' + self.username, 'r')
+            fp = open(self.path + self.username, 'r')
             lines = fp.readlines()
         return self.read_lines(lines)
 
@@ -129,3 +131,10 @@ class grade:
         except smtplib.SMTPException:
             print "Error: 无法发送邮件"
             return 1
+
+if __name__ == '__main__':
+    receiver = raw_input(u'Enter your receiver:')
+    sender_passwd = getpass.getpass(u'Enter your sender passwd:')
+    username = raw_input(u'Enter userId:')
+    passwd = getpass.getpass(u'Enter passwd:')
+    grade(receiver,sender_passwd,username,passwd).spider()
