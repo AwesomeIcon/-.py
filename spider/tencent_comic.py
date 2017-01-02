@@ -20,7 +20,8 @@ sys.setdefaultencoding('utf8')
 print '\033[1;34m*************************************************************************'
 print ' > Author: huangjunqin'
 print ' > Mail: uestc_ccse@outlook.com'
-print ' > Version: 0.1.0'
+print ' > Version: 0.2.0'
+print ' > Only for ac.qq.com'
 print '*************************************************************************\033[0m\n'
 
 class Comic:
@@ -28,7 +29,7 @@ class Comic:
         self.url = url
         self.cookie = cookielib.CookieJar()
         self.phantomjs_PATH = '/home/huangjunqin/phantomjs/bin/phantomjs'
-        self.save_PATH = '/home/huangjunqin/Documents/'
+        self.save_PATH = '/media/sf_share/'
         self.opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cookie))
         urllib2.install_opener(self.opener)
         self.headers = [{'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36',
@@ -112,9 +113,17 @@ class Comic:
         img_url.close()
 
 while 1:
-    comic_url = raw_input("输入想要保存的漫画链接:")
-    Comic(comic_url).getLink()
-    go_on = raw_input('是否继续保存下一话(Y/N):').lower()
+    comic_url = 'http://ac.qq.com/ComicView/index/id/' + raw_input("输入想要保存的漫画id:") + '/cid/'
+    cid = int(raw_input("输入漫画开始的cid:"))
+    num_to_crawl = int(raw_input("想存的章数:"))
+    i = cid
+    try:
+        while i < (cid+num_to_crawl):
+            Comic(comic_url + str(i)).getLink()
+            i += 1
+    except:
+        print '\033[1;31m','URI is error','\033[0m'
+    go_on = raw_input('是否继续保存其他漫画(Y/N):').lower()
     if go_on == 'y':
         continue
     else:
