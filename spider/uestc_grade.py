@@ -99,6 +99,10 @@ class grade:
                                 break
                         if flag is True:
                             lines.append(new_line)
+                if len(lines) is 0:
+                    return False
+            else:
+                return False
         else:
             fp = open(self.path + self.username, 'r')
             lines = fp.readlines()

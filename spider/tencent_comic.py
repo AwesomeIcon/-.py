@@ -27,6 +27,8 @@ class Comic:
     def __init__(self,url):
         self.url = url
         self.cookie = cookielib.CookieJar()
+        self.phantomjs_PATH = '/home/huangjunqin/phantomjs/bin/phantomjs'
+        self.save_PATH = '/home/huangjunqin/Documents/'
         self.opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(self.cookie))
         urllib2.install_opener(self.opener)
         self.headers = [{'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36',
@@ -74,7 +76,7 @@ class Comic:
     def getLink(self):
         for key, value in enumerate(random.choice(self.headers)):
             webdriver.DesiredCapabilities.PHANTOMJS['phantomjs.page.customHeaders.{}'.format(key)] = value
-        driver = webdriver.PhantomJS(executable_path='/home/huangjunqin/phantomjs/bin/phantomjs')
+        driver = webdriver.PhantomJS(executable_path=self.phantomjs_PATH)
         driver.get(self.url)
         WebDriverWait(driver,5).until(lambda x: x.find_element_by_id("crossPage")).click()
         WebDriverWait(driver,5).until(lambda x: x.find_elements(By.XPATH,"//img[@data-pid]"))
@@ -94,16 +96,16 @@ class Comic:
         driver.close()
 
     def saveFile(self,url,name,i,lock):
-        isExist = os.path.exists('/home/huangjunqin/Documents/' + name)
+        isExist = os.path.exists(self.save_PATH + name)
         if not isExist:
             lock.acquire()
             if not isExist:
                 print '\033[1;32m'
                 print '+ mkdir ', '\033[0m' ,name ,u' 共' ,i ,'P'
-                os.makedirs('/home/huangjunqin/Documents/' + name)
+                os.makedirs(self.save_PATH + name)
             lock.release()
         print '\033[1;32m','+ Saving','\033[0m', url
-        img_url = open('/home/huangjunqin/Documents/' + name + '/' + str(i) + ".jpg",'w+')
+        img_url = open(self.save_PATH + name + '/' + str(i) + ".jpg",'w+')
         request = urllib2.Request(url,headers=random.choice(self.headers))
         data = urllib2.urlopen(request).read()
         img_url.write(data)
