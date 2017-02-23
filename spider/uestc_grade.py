@@ -81,6 +81,7 @@ class grade:
             fp.write(course + '\n')
         fp.close()
         lines = []
+        isChange = False
         if os.path.exists(self.path + self.username + '.old'):
             fp = open(self.path + self.username, 'r')
             fp_old = open(self.path + self.username + '.old', 'r')
@@ -88,7 +89,6 @@ class grade:
                 count_old = len(fp_old.readlines())
                 count = len(fp.readlines())
                 fp.seek(0)
-                fp_old.seek(0)
                 if count_old < count:
                     for new_line in fp.readlines():
                         flag = True
@@ -99,16 +99,28 @@ class grade:
                                 break
                         if flag is True:
                             lines.append(new_line)
-                if len(lines) is 0:
-                    return False
+                if count_old == count:
+                    isChange = True
+                    for new_line in fp.readlines():
+                    eqChange = False
+                    fp_old.seek(0)
+                    for line in fp_old.readlines():
+                        if cmp(line, new_line) == 0:
+                        eqChange = True
+                        break
+                    if eqChange is False:
+                            lines.append(new_line)	    
+                        return self.read_lines(lines, isChange)
             else:
                 return False
         else:
+	        isChange = False
             fp = open(self.path + self.username, 'r')
             lines = fp.readlines()
-        return self.read_lines(lines)
+            return self.read_lines(lines, isChange)
 
-    def read_lines(self, lines):
+
+    def read_lines(self, lines ,isChange):
         content = ''
         for line in lines:
             list = line.split('|')
@@ -117,13 +129,16 @@ class grade:
                        '学分：' + list[5] + '\n' + \
                        '成绩：' + list[6] + '\n' + \
                        '绩点：' + list[9] + '\n\n'
-        return self.send_mail(content)
+        return self.send_mail(content, isChange)
 
-    def send_mail(self, lines):
+    def send_mail(self, lines, isChange):
         message = MIMEText(lines, 'plain', 'utf-8')
         message['From'] = Header("no-reply", 'utf-8')
         message['To'] = Header(self.username, 'utf-8')
-        subject = 'Portal Grade Sender'
+        if isChange:
+    	    subject = u'成绩有变动！'
+	    else:
+            subject = u'有新成绩出来啦！'
         message['Subject'] = Header(subject, 'utf-8')
         try:
             smtpObj = smtplib.SMTP()
