@@ -41,14 +41,22 @@ class grade:
                                         '_eventId':	'submit',
                                         'rmShown': '1'
                                            })
-        self.second_url = "http://eams.uestc.edu.cn/eams/teach/grade/course/person!search.action?semesterId=123&projectType="
+        self.second_url = "http://eams.uestc.edu.cn/eams/teach/grade/course/person!search.action?semesterId=143&projectType="
 
     def spider(self):
 	    try:
             request = urllib2.Request(self.first_url, data=self.post_data)
             response = self.opener.open(request)
             result = self.opener.open(self.second_url).read()
-            return self.handler(result)
+            # 解决portal重复登陆问题
+            try:
+                pattern = re.compile('重复登录.*?<a href="(.*?)">', re.S)
+                check = re.search(pattern, result)
+                if check.group(1):
+                    self.get_lt_exe()
+                    self.spider()
+            except Exception:
+                self.handler(result)
 	    except Exception:
             self.runlog('网络有问题')
 
