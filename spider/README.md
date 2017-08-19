@@ -1,7 +1,6 @@
-# package.json #
----
+# package.json
 
-## tencent_comic
+### tencent_comic
 
 - phantomjs [http://phantomjs.org/download.html](http://phantomjs.org/download.html)
 - selenium
